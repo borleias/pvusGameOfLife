@@ -31,14 +31,14 @@ namespace pvusGameOfLifeSequential
         /// Sets the width of the game field.
         /// </summary>
         /// <param name="width">A positive number of columns larger than zero.</param>
-        private void SetWidth(int width) 
+        private void SetWidth(int width)
         {
             if (width < 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(width), "The number of columns must be larger than zero!");
             }
 
-            this.width = width; 
+            this.width = width;
         }
 
         /// <summary>
@@ -51,14 +51,14 @@ namespace pvusGameOfLifeSequential
         /// Sets the height of the game field.
         /// </summary>
         /// <param name="height">A positive number of rows larger than zero.</param>
-        private void SetHeight(int height) 
+        private void SetHeight(int height)
         {
             if (height < 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(height), "The number of rows must be larger than zero!");
             }
 
-            this.height = height; 
+            this.height = height;
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace pvusGameOfLifeSequential
             // start a stopwatch to measure the time required for the calculation
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            
+
             // create a new array to store the new generation
             bool[,] newCells = this.CalculateNextGeneration();
 
@@ -129,6 +129,69 @@ namespace pvusGameOfLifeSequential
             return stopwatch.ElapsedMilliseconds;
         }
 
+        private bool[,] CalculateNextGeneration()
+        {
+            // create a new array to store the new generation
+            bool[,] newCells = new bool[this.GetWidth(), this.GetHeight()];
+
+            int minX1 = 0;
+            int minX2 = this.GetWidth() / 2;
+            int maxX1 = this.GetWidth() / 2;
+            int maxX2 = this.GetWidth();
+
+            //CalculateNextGeneration(0, this.GetWidth() - 1, newCells);
+            
+            //CalculateNextGeneration(minX1, maxX1, newCells);
+            //CalculateNextGeneration(minX2, maxX2, newCells);
+
+            Thread t1 = new Thread(() => CalculateNextGeneration(minX1, maxX1, newCells));
+            Thread t2 = new Thread(() => CalculateNextGeneration(minX2, maxX2, newCells));
+
+            t1.Start();
+            t2.Start();
+
+            t1.Join();
+            t2.Join();
+
+            return newCells;
+        }
+
+        private void CalculateNextGeneration(int minX, int maxX, bool[,] game)
+        {
+            // loop through all cells
+            for (int x = minX; x < maxX; x++)
+            {
+                for (int y = 0; y < this.GetHeight(); y++)
+                {
+                    // get the current state of the cell
+                    bool cellState = this.GetCells()[x, y];
+
+                    // count the number of neighbors
+                    int neighbors = this.CountNeighbors(x, y);
+
+                    // apply the rules of the game
+                    if (neighbors == 3)
+                    {
+                        // cell is born or stays alive
+                        cellState = true;
+                    }
+                    else if (neighbors == 2)
+                    {
+                        // do not change the state
+                    }
+                    else
+                    {
+                        // cell dies
+                        cellState = false;
+                    }
+
+                    // set the new state of the cell
+                    game[x, y] = cellState;
+                }
+            }
+        }
+
+        /*
         private bool[,] CalculateNextGeneration()
         {
             // create a new array to store the new generation
@@ -168,7 +231,7 @@ namespace pvusGameOfLifeSequential
 
             return newCells;
         }
-        
+         */
 
         /// <summary>
         /// Count the number of living neighbors for a given cell
@@ -178,7 +241,7 @@ namespace pvusGameOfLifeSequential
         /// <returns>The number of living neighbors.</returns>
         private int CountNeighbors(int x, int y)
         {
-            int neighbors = 
+            int neighbors =
                 this.GetCellValue(this.Left(x), this.Above(y)) +
                 this.GetCellValue(this.Left(x), y) +
                 this.GetCellValue(this.Left(x), this.Below(y)) +
@@ -231,7 +294,7 @@ namespace pvusGameOfLifeSequential
         public void InitializeGame(int probabilityOfLife)
         {
             // check if the probability of life is valid
-            if(probabilityOfLife < 1 || probabilityOfLife > 100)
+            if (probabilityOfLife < 1 || probabilityOfLife > 100)
             {
                 throw new ArgumentOutOfRangeException(nameof(probabilityOfLife), "The probability of life must be a value between 1 and 100 percent.");
             }
@@ -249,7 +312,7 @@ namespace pvusGameOfLifeSequential
                 {
                     int random = rnd.Next(1, 101);
 
-                    if(random <= probabilityOfLife)
+                    if (random <= probabilityOfLife)
                     {
                         // cell is alive
                         newCells[x, y] = true;
