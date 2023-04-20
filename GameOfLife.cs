@@ -134,74 +134,6 @@ namespace pvusGameOfLifeSequential
             // create a new array to store the new generation
             bool[,] newCells = new bool[this.GetWidth(), this.GetHeight()];
 
-            int minX1 = 0;
-            int minX2 = this.GetWidth() / 2;
-            int maxX1 = this.GetWidth() / 2 - 1;
-            int maxX2 = this.GetWidth() - 1;
-
-            int minY1 = 0;
-            int minY2 = this.GetHeight() / 2;
-            int maxY1 = this.GetHeight() / 2 - 1;
-            int maxY2 = this.GetHeight() - 1;
-
-            //CalculateNextGeneration(minX1, maxX1, minY1, maxY1, newCells);
-            //CalculateNextGeneration(minX2, maxX2, minY2, maxY2, newCells);
-
-            //CalculateNextGeneration(0, this.GetWidth() - 1, 0, this.GetHeight() - 1, newCells);
-
-            Thread t1 = new Thread(() => CalculateNextGeneration(minX1, maxX1, minY1, maxY1, newCells));
-            Thread t2 = new Thread(() => CalculateNextGeneration(minX2, maxX2, minY2, maxY2, newCells));
-
-            t1.Start();
-            t2.Start();
-
-            t1.Join();
-            t2.Join();
-
-            return newCells;
-        }
-
-        private void CalculateNextGeneration(int minX, int maxX, int minY, int maxY, bool[,] game)
-        {
-            // loop through all cells
-            for (int x = minX; x <= maxX; x++)
-            {
-                for (int y = minY; y <= maxY; y++)
-                {
-                    // get the current state of the cell
-                    bool cellState = this.GetCells()[x, y];
-
-                    // count the number of neighbors
-                    int neighbors = this.CountNeighbors(x, y);
-
-                    // apply the rules of the game
-                    if (neighbors == 3)
-                    {
-                        // cell is born or stays alive
-                        cellState = true;
-                    }
-                    else if (neighbors == 2)
-                    {
-                        // do not change the state
-                    }
-                    else
-                    {
-                        // cell dies
-                        cellState = false;
-                    }
-
-                    // set the new state of the cell
-                    game[x, y] = cellState;
-                }
-            }
-        }
-
-        /*
-        private bool[,] CalculateNextGeneration()
-        {
-            // create a new array to store the new generation
-            bool[,] newCells = new bool[this.GetWidth(), this.GetHeight()];
-
             // loop through all cells
             for (int x = 0; x < this.GetWidth(); x++)
             {
@@ -236,7 +168,7 @@ namespace pvusGameOfLifeSequential
 
             return newCells;
         }
-         */
+        
 
         /// <summary>
         /// Count the number of living neighbors for a given cell
